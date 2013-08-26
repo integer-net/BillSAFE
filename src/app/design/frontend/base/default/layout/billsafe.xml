@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layout>
+    <checkout_onepage_paymentmethod>
+        <reference name="root">
+            <action method="setTemplate">
+                <template>billsafe/onepage/payment/methods.phtml</template>
+            </action>
+        </reference>
+    </checkout_onepage_paymentmethod>
+    
+    <checkout_onepage_review>
+        <reference name="checkout.onepage.review.button">
+            <action method="setTemplate">
+                <template>billsafe/onepage/review/button.phtml</template>
+            </action>
+        </reference>
+        
+        <reference name="root">
+            <action method="setTemplate">
+                <template>billsafe/onepage/review/info.phtml</template>
+            </action>
+            
+            <block type="core/template" name="checkout.onepage.review.button" as="button" template="billsafe/onepage/review/button.phtml"/>
+        </reference>
+    </checkout_onepage_review>
+    
+    <default>
+        <reference name="head">
+            <block type="core/text" name="billsafe_js">
+                <action method="setText">
+                    <script>
+                    <![CDATA[<script src="https://content.billsafe.de/lpg/js/client.js"></script>]]>
+                    </script>
+                </action>
+            </block>
+        </reference>
+    </default>
+    
+    <onestepcheckout_index_index>
+        <reference name="content">
+            <!-- Remove Default OnestepCheckout Template -->
+            <remove name="onestepcheckout.checkout" />
+            
+            <block type="onestepcheckout/checkout" name="onestepcheckout.checkout.billsafe" template="billsafe/onestepcheckout/checkout.phtml">
+                <block type="checkout/agreements" name="checkout.onepage.agreements" as="agreements" template="onestepcheckout/agreements.phtml"/>
+                <block type="onestepcheckout/fields" as="billing_address" name="onestepcheckout.billing.address" template="onestepcheckout/billing_fields.phtml" />
+                <block type="onestepcheckout/fields" as="shipping_address" name="onestepcheckout.shipping.address" template="onestepcheckout/shipping_fields.phtml" />
+                <block type="onestepcheckout/summary" as="summary" name="onestepcheckout.summary" template="onestepcheckout/summary.phtml" />
+                <block type="checkout/onepage_payment_methods" name="choose-payment-method" template="billsafe/onestepcheckout/payment_method.phtml">
+                    <action method="setMethodFormTemplate"><method>purchaseorder</method><template>payment/form/purchaseorder.phtml</template></action>
+                </block>
+                <block type="checkout/onepage_shipping_method_available" name="choose-shipping-method" template="onestepcheckout/shipping_method.phtml"/>
+            </block>
+        </reference>
+    </onestepcheckout_index_index>
+    
+    <checkout_onepage_index>
+        <reference name="checkout.onepage.review">
+            <action method="setTemplate">
+                <template>billsafe/onepage/review.phtml</template>
+            </action>
+        </reference>
+        
+        <reference name="head">
+            <action method="addJs"><script>aw/billsafe.js</script></action>
+        </reference>
+    </checkout_onepage_index>
+</layout>

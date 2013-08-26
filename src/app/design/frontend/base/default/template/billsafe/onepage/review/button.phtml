@@ -1,0 +1,11 @@
+<?php $quote = Mage::getModel("checkout/cart")->getQuote() ?>
+<?php $payment = $quote->getPayment(); ?>
+<?php $payment_method = $payment->getMethod(); ?>
+
+<?php if (substr($payment_method, 0, 8) == "billsafe" && Mage::helper("billsafe")->openInLayer()): ?>
+    <button type="submit" title="<?php echo $this->__('Place Order') ?>" class="button btn-checkout" onclick="billsafeGoLayer()"><span><span><?php echo $this->__('Place Order') ?></span></span></button>
+<?php elseif (substr($payment_method, 0, 8) == "billsafe" && !Mage::helper("billsafe")->openInLayer()): ?>
+    <button type="submit" title="<?php echo $this->__('Place Order') ?>" class="button btn-checkout" onclick="billsafeGoGateway('<?php echo Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK, array("_secure" => ($_SERVER["HTTPS"] == "on" ? true : false))); ?>')"><span><span><?php echo $this->__('Place Order') ?></span></span></button>
+<?php else: ?>
+    <button type="submit" title="<?php echo $this->__('Place Order') ?>" class="button btn-checkout" onclick="review.save();"><span><span><?php echo $this->__('Place Order') ?></span></span></button>
+<?php endif; ?>
