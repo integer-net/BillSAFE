@@ -29,7 +29,7 @@
             <block type="core/text" name="billsafe_js">
                 <action method="setText">
                     <script>
-                    <![CDATA[<script src="https://content.billsafe.de/lpg/js/client.js"></script>]]>
+                    <![CDATA[<script type="text/javascript" src="https://content.billsafe.de/lpg/js/client.js"></script>]]>
                     </script>
                 </action>
             </block>
