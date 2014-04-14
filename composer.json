@@ -2,7 +2,7 @@
     "name": "billsafe/billsafe",
     "type": "magento-module",
     "description": "Payment module for invoice and rate payment",
-    "homepage": "http://www.magentocommerce.com/magento-connect/billsafe-3890.html",
+    "homepage": "http://www.magentocommerce.com/magento-connect/billsafe-1.html",
     "require": {
         "magento-hackathon/magento-composer-installer": "*"
     }
