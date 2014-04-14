@@ -9,25 +9,4 @@
             </block>
         </reference>
     </adminhtml_system_config_edit>
-    
-    <adminhtml_sales_order_create_index>
-        <reference name="head">
-            <action method="addJs">
-                <script>aw/adminhtml_varienform_new_quote.js</script>
-            </action>
-            <action method="setTemplate">
-                <template>aw/page/head.phtml</template>
-            </action>
-        </reference>
-    </adminhtml_sales_order_create_index>
-    
-    <adminhtml_sales_order_view>
-        <reference name="sales_order_tabs">
-            <block type="core/text" name="billsafe_info_block">
-            
-            </block>
-            
-            <action method="addTab"><name>billsafe_info</name><block>billsafe/adminhtml_sales_order_view_tab_billsafe</block></action>
-        </reference>
-    </adminhtml_sales_order_view>    
 </layout>

@@ -1,0 +1,45 @@
+<?php // No indents here as they would be visible on PDF printout. ?>
+<?php // Newlines before each echo statement are required as visible on PDF printout. ?>
+<?php /* @var $this Netresearch_Billsafe_Block_Info */ ?>
+<?php $rowWidth = 80; ?>
+
+<?php echo $this->__('Payed with BillSAFE.'); ?>
+<?php if ($this->isBillsafeCancelled()): ?>
+
+<?php echo $this->__('Billsafe payment was cancelled.') ?>
+<?php else: ?>
+
+<?php echo wordwrap($this->getLegalNote(), $rowWidth, "\n") ?>
+<?php if ($this->hasBillsafeData()): ?>
+
+
+<?php echo $this->__('Recipient') ?>: <?php echo $this->getRecipient(); ?>
+<?php if (strlen(trim($this->getBic()) && strlen(trim($this->getIban())))): ?>
+
+<?php echo $this->__('BIC') ?>: <?php echo $this->getBic() ?>
+
+<?php echo $this->__('IBAN') ?>: <?php echo $this->getIban() ?>
+<?php endif; ?>
+<?php if (strlen(trim($this->getBankCode())) && strlen(trim($this->getAccountNumber()))): ?>
+
+<?php echo $this->__('Bank code') ?>: <?php echo $this->getBankCode() ?>
+
+<?php echo $this->__('Account Number') ?>: <?php echo $this->getAccountNumber() ?>
+<?php endif; ?>
+
+<?php echo $this->__('Bank Name') ?>: <?php echo $this->getBankName() ?>
+<?php if (0 > strlen(trim($this->getBic())) && 0 < strlen(trim($this->getIban()))): ?>
+
+<?php echo $this->__('BIC') ?>: <?php echo $this->getBic() ?>
+
+<?php echo $this->__('IBAN') ?>: <?php echo $this->getIban() ?>
+<?php endif; ?>
+
+<?php echo $this->__('Reference') ?>: <?php echo $this->getReference() ?>
+
+<?php echo $this->__('Amount') ?>: <?php echo $this->stripTags(Mage::helper('core')->currency($this->getAmount())) ?>
+
+
+<?php echo $this->__('Note') ?>: <?php echo wordwrap($this->getNote(), $rowWidth, "\n") ?>
+<?php endif; // end hasBillsafeData ?>
+<?php endif; // end isBillsafeCancelled ?>

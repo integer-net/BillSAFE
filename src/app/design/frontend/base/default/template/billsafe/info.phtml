@@ -1,14 +1,7 @@
 <?php if ($this->isBillsafeCancelled()): ?>
     <p><?php echo $this->__('Billsafe payment was cancelled.') ?></p>
 <?php else: ?>
-    <?php $data = $this->getInfo(); ?>
-    <?php $method = $data->getMethod(); ?>
-    <?php if($method == AwHh_Billsafe_Model_Payment::CODE): ?>
-        <p><?php echo $this->__('billsafe_forderung') ?></p>
-    <?php elseif($method == AwHh_Billsafe_Model_Installment::CODE): ?>
-        <p><?php echo $this->__('billsafe_forderung_rate') ?></p>
-    <?php endif; ?>
-    
+    <p><?php echo $this->__($this->getBillsafeTitle()); ?></p>
     <?php if ($this->hasBillsafeData()): ?>
         <div>
             <style type="text/css">
