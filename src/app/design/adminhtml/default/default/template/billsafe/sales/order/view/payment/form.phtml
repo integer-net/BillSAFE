@@ -1,0 +1,31 @@
+<?php /* @var $this Netresearch_Billsafe_Block_Adminhtml_Sales_Order_View_Payment_Form */ ?>
+<legend><?php echo $this->__("Report a direct payment to BillSAFE") ?></legend>
+<div id="billsafe_payment_form" class="order-billsafe-payment-form">
+    <p><?php echo $this->__("Should your customer pay the invoice amount to you directly by mistake and not to BillSAFE as instructed, you can use this operation to inform BillSAFE about the direct payment. There is no need to forward the received amount to BillSAFE.") ?></p>
+    <span class="field-row">
+        <label class="normal" for="billsafe_payment_amount"><?php echo $this->__('Direct Payment Amount') ?></label><br/>
+        <input id="billsafe_payment_amount" class="input-text not-negative-amount" type="text" name="payment_amount" style="text-align:right" />&nbsp;&euro;
+    </span>
+    <span class="field-row">
+        <label class="normal" for="billsafe_payment_date"><?php echo $this->__('Date of Payment Receipt') ?></label><br/>
+        <input id="billsafe_payment_date" class="input-text" type="text" name="payment_date" value="<?php echo $this->getCurrentDate() ?>" />
+        <img src="<?php echo $this->getSkinUrl('images/grid-cal.gif') ?>" title="<?php echo $this->__('Select Date') ?>" id="payment_date_trig" alt="<?php echo $this->__('Select Date') ?>" />
+    </span>
+    <div class="f-right">
+        <?php echo $this->getChildHtml('submit_button') ?>
+    </div>
+    <div class="clear"></div>
+</div>
+<?php echo $this->getChildHtml('billsafe_direct_payments') ?>
+<script type="text/javascript">
+//<![CDATA[
+    Calendar.setup({
+        inputField : 'billsafe_payment_date',
+        ifFormat : '<?php echo $this->getDateFormat() ?>',
+        button : 'payment_date_trig',
+        showsTime: false,
+        align : 'Bl',
+        singleClick : true
+    });
+//]]>
+</script>

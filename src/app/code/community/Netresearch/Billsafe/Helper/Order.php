@@ -46,6 +46,19 @@ class Netresearch_Billsafe_Helper_Order extends Mage_Payment_Helper_Data
     }
 
     /**
+     * Check if the payment of the given order is made via BillSAFE payment method.
+     *
+     * @param Mage_Sales_Model_Order $order
+     * @return boolean
+     */
+    public function hasBillsafePayment(Mage_Sales_Model_Order $order)
+    {
+        $billsafeCode = Netresearch_Billsafe_Model_Payment::CODE;
+        $paymentCode  = $order->getPayment()->getMethodInstance()->getCode();
+        return ($paymentCode === $billsafeCode);
+    }
+
+    /**
      * @param Mage_Sales_Model_Quote $quote
      */
     public function prepareParamsForPrevalidateOrder(Mage_sales_Model_Quote $quote)
@@ -714,10 +727,7 @@ class Netresearch_Billsafe_Helper_Order extends Mage_Payment_Helper_Data
         }
 
         try {
-            $data = Mage::getSingleton('billsafe/client')
-                ->getPaymentInstruction(
-                $order
-            );
+            $data = Mage::getSingleton('billsafe/client')->getPaymentInstruction($order);
             if ($data) {
                 $payment->setAdditionalInformation(
                     'BillsafeStatus', Netresearch_Billsafe_Model_Payment::BILLSAFE_STATUS_ACTIVE
@@ -812,6 +822,63 @@ class Netresearch_Billsafe_Helper_Order extends Mage_Payment_Helper_Data
     }
 
     /**
+     * Add order items and coupon code from given order object to cart.
+     *
+     * @param Mage_Sales_Model_Order $order
+     * @param Mage_Checkout_Model_Cart $cart
+     */
+    public function restoreCart(Mage_Sales_Model_Order $order, Mage_Checkout_Model_Cart $cart)
+    {
+        if (Mage::helper('persistent/data')->isEnabled() && $cart->getItemsQty()) {
+            // Persistent cart is enabled, no need to restore anything.
+            return;
+        }
+
+        // Restore order items
+        foreach ($order->getItemsCollection() as $orderItem) {
+            try {
+                $cart->addOrderItem($orderItem);
+            } catch (Exception $e) {
+                Mage::log($e->getMessage());
+            }
+        }
+
+        // Add coupon code
+        if ($order->hasCouponCode()) {
+            $cart
+                ->getQuote()
+                ->setCouponCode($order->getCouponCode())
+                ->save();
+        }
+
+        $cart->save();
+    }
+
+    /**
+     * Cancel order or, if not possible, at least set status accordingly.
+     *
+     * @param Mage_Sales_Model_Order $order
+     */
+    public function cancelOrder(Mage_Sales_Model_Order $order)
+    {
+        $order->cancel();
+        if (!$order->isCanceled()) {
+            $order->setState(Mage_Sales_Model_Order::STATE_CANCELED, true);
+        }
+        $order->save();
+    }
+
+    public function cancelLastOrderAndRestoreCart(Mage_Checkout_Model_Session $session)
+    {
+        $order = Mage::getModel('sales/order')
+            ->loadByIncrementId($session->getLastRealOrderId());
+        $cart = Mage::getSingleton('checkout/cart');
+
+        $this->restoreCart($order, $cart);
+        $this->cancelOrder($order);
+    }
+
+    /**
      * Check if current order applies for BillSAFE Onsite Checkout.
      *
      * @return boolean
@@ -829,5 +896,42 @@ class Netresearch_Billsafe_Helper_Order extends Mage_Payment_Helper_Data
         $onsiteCompany = !Mage::helper('billsafe/customer')
             ->getCustomerCompany($quote);
         return ($onsiteConfig && $onsiteCompany);
+    }
+
+    /**
+     * Obtain the first captured transaction for a given order.
+     *
+     * @param int $orderId
+     * @return Mage_Sales_Model_Order_Payment_Transaction
+     */
+    public function getCapturedTransaction($orderId)
+    {
+        /* @var $transactionCollection Mage_Sales_Model_Resource_Order_Payment_Transaction_Collection */
+        $transactionCollection = Mage::getModel('sales/order_payment_transaction')
+            ->getCollection();
+        return $transactionCollection
+            ->addOrderIdFilter($orderId)
+            ->addTxnTypeFilter(Mage_Sales_Model_Order_Payment_Transaction::TYPE_CAPTURE)
+            ->getFirstItem();
+    }
+
+    /**
+     * Caclulate invoiced base total minus all reported direct payments.
+     *
+     * @param Mage_Sales_Model_Order $order
+     * @return number
+     */
+    public function getOpenPaymentAmount(Mage_Sales_Model_Order $order)
+    {
+        /* @var $directPaymentCollection Netresearch_Billsafe_Model_Resource_Direct_Payment_Collection */
+        $directPaymentCollection = Mage::getModel('billsafe/direct_payment')
+            ->getCollection();
+        $amountReported = $directPaymentCollection
+            ->addTotalReportAmount()
+            ->setOrderFilter($order)
+            ->getFirstItem()
+            ->getData('base_total_report_amount');
+
+        return ($order->getBaseTotalInvoiced() - $amountReported);
     }
 }

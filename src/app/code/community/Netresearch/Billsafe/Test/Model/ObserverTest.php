@@ -181,6 +181,52 @@ class Netresearch_Billsafe_Test_Model_ObserverTest
         $this->assertNull(Mage::getSingleton('customer/session')->getData('authorize_failed'));
         $this->assertNull(Mage::getSingleton('customer/session')->getData('billsafe_billingAddrHash'));
         $this->assertNull(Mage::getSingleton('checkout/session')->getData('customer_dob'));
+    }
 
+    /**
+     * @test
+     * @loadFixture ../../../var/fixtures/stores.yaml
+     */
+    public function getSettlementFiles()
+    {
+        $this->setCurrentStore('admin');
+
+        $basename = 'foo.csv';
+
+        $configMock = $this->getModelMock('billsafe/config', array('isSettlementDownloadEnabled'));
+        $configMock
+            ->expects($this->any())
+            ->method('isSettlementDownloadEnabled')
+            ->will($this->onConsecutiveCalls(
+                false, false,
+                true, false,
+                true, true
+            ))
+        ;
+        $this->replaceByMock('model', 'billsafe/config', $configMock);
+
+        $clientMock = $this->getModelMock('billsafe/client', array('getSettlement'));
+        $clientMock
+            ->expects($this->any())
+            ->method('getSettlement')
+            ->will($this->returnValue($basename));
+        $this->replaceByMock('model', 'billsafe/client', $clientMock);
+
+        /* @var $schedule Mage_Cron_Model_Schedule */
+        $schedule = Mage::getModel('cron/schedule');
+        /* @var $observer Netresearch_Billsafe_Model_Observer */
+        $observer = Mage::getModel('billsafe/observer');
+
+        $observer->getSettlementFiles($schedule);
+        $this->assertNull($schedule->getMessages());
+
+        $observer->getSettlementFiles($schedule);
+        $this->assertInternalType("string", $schedule->getMessages());
+        $this->assertStringStartsWith("$basename was successfully downloaded", $schedule->getMessages());
+
+        $observer->getSettlementFiles($schedule);
+        $this->assertInternalType("string", $schedule->getMessages());
+        $messages = explode("\n", $schedule->getMessages());
+        $this->assertCount(2, $messages);
     }
 }

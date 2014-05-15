@@ -212,3 +212,5 @@ tables:
      qty_ordered: 2.0000
      qty_shipped: 2.0000
      qty_invoiced: 1.0000
+
+  sales/order_status_history:

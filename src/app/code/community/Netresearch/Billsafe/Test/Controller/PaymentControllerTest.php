@@ -10,100 +10,107 @@
 class Netresearch_Billsafe_Test_Controller_PaymentControllerTest
     extends EcomDev_PHPUnit_Test_Case_Controller
 {
-
     public function testVerifyActionRedirectsToCart()
     {
-        $customerSessionMock = $this->getModelMock('checkout/session', array('init', 'save', 'addError', 'isLoggedIn'));
+        $customerSessionMock = $this->getModelMock('checkout/session', array(
+            'init',
+            'save',
+            'addError',
+            'isLoggedIn'
+        ));
         $this->replaceByMock('model', 'checkout/session', $customerSessionMock);
-
-        $clientMock = $this->getModelMock('billsafe/client', array('isValid', 'isAccepted', 'getResponse', 'getTransactionResult'));
-        $clientMock->expects($this->any())
-            ->method('isValid')
-            ->will($this->returnValue(false));
-        $clientMock->expects($this->any())
-            ->method('isAccepted')
-            ->will($this->returnValue(false));
-
-        $clientMock->expects($this->any())
-            ->method('getTransactionResult')
-            ->will($this->returnValue($clientMock));
 
         $declineReason = new stdClass();
         $declineReason->buyerMessage = 'foo';
         $fakeResponse = new stdClass();
         $fakeResponse->declineReason = $declineReason;
+
+        $clientMock = $this->getModelMock('billsafe/client', array(
+            'isValid',
+            'isAccepted',
+            'getResponse',
+            'getTransactionResult'
+        ));
+        $clientMock->expects($this->any())
+            ->method('isValid')
+            ->will($this->returnValue(false));
+        $clientMock->expects($this->any())
+            ->method('isAccepted')
+            ->will($this->returnValue(false));
         $clientMock->expects($this->any())
             ->method('getResponse')
             ->will($this->returnValue($fakeResponse));
+        $clientMock->expects($this->any())
+            ->method('getTransactionResult')
+            ->will($this->returnSelf());
         $this->replaceByMock('model', 'billsafe/client', $clientMock);
 
         $dataHelperMock = $this->getHelperMock('billsafe/data', array('cancelOrder'));
-        $this->replaceByMock('helper', 'billsafe', $dataHelperMock);
+        $this->replaceByMock('helper', 'billsafe/data', $dataHelperMock);
+
+        $orderHelperMock = $this->getHelperMock('billsafe/order', array('cancelLastOrderAndRestoreCart'));
+        $this->replaceByMock('helper', 'billsafe/order', $orderHelperMock);
 
         $this->dispatch('billsafe/payment/verify', array('_store' => 1));
         $this->assertRedirect();
         $this->assertRedirectTo('checkout/cart', array('_store' => 1));
-
-
-
-
     }
 
     public function testVerifyActionRedirectsToCheckoutSuccess()
     {
-        $clientMock = $this->getModelMock('billsafe/client', array('isValid', 'isAccepted', 'getTransactionResult'));
+        $clientMock = $this->getModelMock('billsafe/client', array(
+            'isValid',
+            'isAccepted',
+            'getTransactionResult'
+        ));
         $clientMock->expects($this->any())
             ->method('isValid')
             ->will($this->returnValue(true));
         $clientMock->expects($this->any())
             ->method('isAccepted')
             ->will($this->returnValue(true));
-
         $clientMock->expects($this->any())
             ->method('getTransactionResult')
-            ->will($this->returnValue($clientMock));
-
+            ->will($this->returnSelf());
         $this->replaceByMock('model', 'billsafe/client', $clientMock);
 
         $txMock = $this->getModelMock('sales/order_payment_transaction', array('save'));
+        $txMock->expects($this->any())
+            ->method('save')
+            ->will($this->returnSelf());
+        $this->replaceByMock('model', 'sales/order_payment_transaction', $txMock);
 
         $dataHelperMock = $this->getHelperMock('billsafe/data', array('getTransactionByTransactionId'));
         $dataHelperMock->expects($this->any())
             ->method('getTransactionByTransactionId')
-            ->will($this->returnValue($txMock));
-        $this->replaceByMock('helper', 'billsafe', $dataHelperMock);
+            ->will($this->returnValue(Mage::getModel('sales/order_payment_transaction')));
+        $this->replaceByMock('helper', 'billsafe/data', $dataHelperMock);
 
-        $orderMock = $this->getModelMock('sales/order', array('save', 'sendNewOrderEmail'));
+        $orderMock = $this->getModelMock('sales/order', array(
+            'save',
+            'sendNewOrderEmail',
+        ));
+        $orderMock->expects($this->any())
+            ->method('save')
+            ->will($this->returnSelf());
+        $orderMock->expects($this->any())
+            ->method('sendNewOrderEmail')
+            ->will($this->onConsecutiveCalls(
+                $this->returnSelf(),
+                $this->throwException(new Exception('Test Exception'))
+            ));
         $this->replaceByMock('model', 'sales/order', $orderMock);
 
         $orderHelperMock = $this->getHelperMock('billsafe/order', array('getPaymentInstruction'));
-        $orderHelperMock->expects($this->any())
-            ->method('getPaymentInstruction')
-            ->will($this->returnValue(''));
         $this->replaceByMock('helper', 'billsafe/order', $orderHelperMock);
 
         $this->dispatch('billsafe/payment/verify', array('_store' => 1));
         $this->assertRedirect();
         $this->assertRedirectTo('checkout/onepage/success', array('_store' => 1));
 
-        $configMock = $this->getModelMock('billsafe/config', array('getBillSafeOrderStatus'));
-        $configMock->expects($this->any())
-            ->method('getBillSafeOrderStatus')
-            ->will($this->returnValue('pending'));
-        $this->replaceByMock('model', 'billsafe/config', $configMock);
-
-        $orderMock = $this->getModelMock('sales/order', array('save', 'sendNewOrderEmail'));
-        $orderMock->expects($this->any())
-            ->method('sendNewOrderEmail')
-            ->will($this->throwException(new Exception('Test Exception')));
-        $this->replaceByMock('model', 'sales/order', $orderMock);
-
-
-
         $this->dispatch('billsafe/payment/verify', array('_store' => 1));
         $this->assertRedirect();
         $this->assertRedirectTo('checkout/onepage/success', array('_store' => 1));
-
     }
 
     /**
@@ -125,5 +132,4 @@ class Netresearch_Billsafe_Test_Controller_PaymentControllerTest
         $this->assertRedirect();
         $this->assertRedirectTo('checkout/cart', array('_store' => 1));
     }
-
 }

@@ -141,4 +141,32 @@ class Netresearch_Billsafe_Model_Observer
             $result->setNotes($notes);
         }
     }
+
+    /**
+     * Download settlement file initiated by cron.
+     *
+     * @param Mage_Cron_Model_Schedule $schedule
+     */
+    public function getSettlementFiles(Mage_Cron_Model_Schedule $schedule)
+    {
+        /* @var $config Netresearch_Billsafe_Model_Config */
+        $config = Mage::getModel('billsafe/config');
+
+        $messages = array();
+        foreach (Mage::app()->getStores() as $store) {
+            if ($config->isSettlementDownloadEnabled($store)) {
+                /* @var $client Netresearch_Billsafe_Model_Client */
+                $client = Mage::getModel('billsafe/client');
+                $filename = $client->getSettlement($store);
+                $messages[]= sprintf(
+                    "%s was successfully downloaded for store %s.",
+                    $filename,
+                    $store->getCode()
+                );
+            }
+        }
+        if (count($messages)) {
+            $schedule->setMessages(implode("\n", $messages));
+        }
+    }
 }

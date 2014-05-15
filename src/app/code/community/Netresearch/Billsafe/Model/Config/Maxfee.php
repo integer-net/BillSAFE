@@ -17,9 +17,8 @@ class Netresearch_Billsafe_Model_Config_Maxfee
      */
     public function _afterLoad()
     {
-        $storeId = Mage::app()->getStore()->getId();
         $config = $this->getTempConfig();
-        if ($config->isPaymentFeeEnabled($storeId)) {
+        if ($config->isPaymentFeeEnabled()) {
             $max = $this->getMaxFee();
             if ($max < $this->getValue()) {
                 $this->setValue($max);
@@ -36,28 +35,28 @@ class Netresearch_Billsafe_Model_Config_Maxfee
      */
     public function _beforeSave()
     {
-        $storeId = Mage::app()->getStore()->getId();
+        $scopeId = $this->getScopeId();
         $config = $this->getTempConfig();
-        if ($config->isActive($storeId)
-            && $config->isPaymentFeeEnabled($storeId)
-            && strlen($config->getMerchantId($storeId))
-            && strlen($config->getMerchantLicense($storeId))
+        if ($config->isActive($scopeId)
+            && $config->isPaymentFeeEnabled($scopeId)
+            && strlen($config->getMerchantId($scopeId))
+            && strlen($config->getMerchantLicense($scopeId))
         ) {
             $dataHelper = $this->getDataHelper();
             if ($this->getValue() == '') {
                 $msg = 'Maximum/Default fee is required entry!';
-                throw new Exception($dataHelper->__($msg));
+                throw new Netresearch_Billsafe_Model_Config_Exception($dataHelper->__($msg));
             }
             $max = $this->getMaxFee();
             if (is_null($max)) {
-                throw new Exception($dataHelper->__(
+                throw new Netresearch_Billsafe_Model_Config_Exception($dataHelper->__(
                     'No connection to BillSAFE. Please check your credentials.'
                 ));
             }
             if ($max < $this->getValue()) {
                 $msg
                     = 'Maximum/Default fee %s exceeded the allowed maximum by BillSAFE of %s.';
-                throw new Exception($dataHelper->__(
+                throw new Netresearch_Billsafe_Model_Config_Exception($dataHelper->__(
                     $msg, $this->getValue(), $max
                 ));
             }
@@ -76,7 +75,7 @@ class Netresearch_Billsafe_Model_Config_Maxfee
     {
         $max = null;
         try {
-            $max = Mage::getModel('billsafe/config')->getMaxFee();
+            $max = $this->getTempConfig()->getMaxFee();
         } catch (Exception $e) {
             $this->getDataHelper()->log('error obtaining the max fee ' . $e->getMessage());
             Mage::logException($e);

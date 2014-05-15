@@ -127,6 +127,33 @@ class Netresearch_Billsafe_Model_Config extends Varien_Object
      */
     const CONFIG_PATH_BILLSAFE_CUSTOMER_GENDER = 'payment/billsafe/default_gender';
 
+
+    /**
+     * Returns current scope id if it is set
+     * else returns 0
+     *
+     * @return int
+     */
+    public function getCurrentScopeId(){
+        $scopeId = $this->getData('scope_id');
+        if(is_null($scopeId)){
+            return 0;
+        }
+        return $scopeId;
+    }
+
+    /**
+     * BillSAFE settlement download config path
+     * @var string
+     */
+    const CONFIG_PATH_BILLSAFE_DOWNLOAD_SETTLEMENT = 'payment/billsafe/download_settlement';
+
+    /**
+     * BillSAFE settlement cron expression
+     * @var string
+     */
+    const CONFIG_PATH_BILLSAFE_SETTLEMENT_CRON_EXPR = 'crontab/jobs/billsafe_settlement/schedule/cron_expr';
+
     /**
      * getter for billsafe exeeding min fee amount
      *
@@ -246,6 +273,11 @@ class Netresearch_Billsafe_Model_Config extends Varien_Object
      */
     public function getMerchantId($storeId = null)
     {
+        $merchantId = $this->getData('merchant_id');
+        if (0 < strlen($merchantId)) {
+            return $merchantId;
+        }
+
         return Mage::getStoreConfig(self::CONFIG_PATH_MERCHAND_ID, $storeId);
     }
 
@@ -258,6 +290,11 @@ class Netresearch_Billsafe_Model_Config extends Varien_Object
      */
     public function getMerchantLicense($storeId = null)
     {
+        $merchantLicence = $this->getData('merchant_license');
+        if (0 < strlen($merchantLicence)) {
+            return $merchantLicence;
+        }
+
         return Mage::getStoreConfig(
             self::CONFIG_PATH_MERCHAND_LICENSE, $storeId
         );
@@ -294,7 +331,7 @@ class Netresearch_Billsafe_Model_Config extends Varien_Object
      *
      * @param int $storeId
      *
-     * @return booelean
+     * @return boolean
      */
     public function isActive($storeId = null)
     {
@@ -358,6 +395,10 @@ class Netresearch_Billsafe_Model_Config extends Varien_Object
      */
     public function isPaymentFeeEnabled($storeId = null)
     {
+        $fee = $this->getData('fee_active');
+        if (isset($fee)) {
+            return $fee;
+        }
         return Mage::getStoreConfig(
             self::CONFIG_PATH_PAYMENT_FEE_ACTIVE, $storeId
         );
@@ -419,26 +460,47 @@ class Netresearch_Billsafe_Model_Config extends Varien_Object
     }
 
     /**
-     * Fetches and returns handling charges (payment fee)
+     * Check if settlement files should get downloaded to disk.
      *
-     * @return array
+     * @param mixed $storeId
+     * @return boolean
      */
-    public function getMaxFee()
+    public function isSettlementDownloadEnabled($storeId = null)
     {
-        return Mage::getModel('billsafe/client')->getAgreedHandlingCharges(
-            'charge'
+        return Mage::getStoreConfigFlag(
+            self::CONFIG_PATH_BILLSAFE_DOWNLOAD_SETTLEMENT, $storeId
         );
     }
 
     /**
-     * Fetches and returns handling charges (Fee Max Amount)
+     * Fetches and returns handling maximum charges (payment fee)
      *
-     * @return array
+     * @return double
      */
-    public function getFeeMaxAmount()
+    public function getMaxFee()
     {
-        return Mage::getModel('billsafe/client')->getAgreedHandlingCharges(
-            'maxAmount'
-        );
+        $client = $this->getClient()->setConfig($this);
+        return $client->getMaxFee();
+    }
+
+    /**
+     * Fetches and returns maximum billing amount
+     *
+     * @return double
+     */
+
+    public function getMaxAmount()
+    {
+        $client = $this->getClient()->setConfig($this);
+        return $client->getMaxAmount();
+    }
+
+    public function getClient()
+    {
+        $client = $this->getData('client');
+        if(!is_null($client)){
+            return $client;
+        }
+        return Mage::getModel('billsafe/client');
     }
 }

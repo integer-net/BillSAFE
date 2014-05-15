@@ -23,18 +23,14 @@ class Netresearch_Billsafe_Test_Helper_DataTest
 
     public function testGetQuotefromSession()
     {
-        $this->markTestSkipped(
-            "This test causes trouble if it's executed together with the other tests"
-        );
         $quote = Mage::getModel('sales/quote');
-        $sessionMock = $this->getModelMock(
-            'checkout/session', array('getQuote', 'init', 'save')
-        );
 
+        $sessionMock = $this->getModelMock('checkout/session', array('getQuote', 'init', 'save'));
         $sessionMock->expects($this->any())
             ->method('getQuote')
             ->will($this->returnValue($quote));
-        $this->replaceByMock('model', 'checkout/session', $sessionMock);
+        $this->replaceByMock('singleton', 'checkout/session', $sessionMock);
+
         $this->assertEquals(
             $quote, Mage::helper('billsafe/data')->getQuotefromSession()
         );
@@ -67,37 +63,6 @@ class Netresearch_Billsafe_Test_Helper_DataTest
             Mage::helper('billsafe/data')->getConfig()
         );
     }
-
-    /**
-     * @loadFixture ../../../var/fixtures/orders.yaml
-     */
-    public function testCancelOrder()
-    {
-        $order = Mage::getModel('sales/order')->load(13);
-        $order->setActionFlag(
-            Mage_Sales_Model_Order::ACTION_FLAG_CANCEL, false
-        );
-        $updatedOrder = Mage::helper('billsafe/data')->cancelOrder($order);
-        $this->assertEquals(
-            Mage_Sales_Model_Order::STATE_CANCELED, $updatedOrder->getState()
-        );
-
-        $orderMock = $this->getModelMock(
-            'sales/order', array('save', 'canCancel')
-        );
-        $orderMock->expects($this->any())
-            ->method('canCancel')
-            ->will($this->returnValue(true));
-        $orderMock->expects($this->any())
-            ->method('save')
-            ->will($this->returnValue($orderMock));
-        $updatedOrder = Mage::helper('billsafe/data')->cancelOrder($orderMock);
-        $this->assertEquals(
-            Mage_Sales_Model_Order::STATE_CANCELED, $updatedOrder->getState()
-        );
-
-    }
-
 
     /**
      * @loadFixture ../../../var/fixtures/orders.yaml
@@ -208,6 +173,11 @@ class Netresearch_Billsafe_Test_Helper_DataTest
 
     public function testIsFeeItem()
     {
+        $checkoutSessionMock = $this->getModelMock('checkout/session', array('init', 'save'));
+        $this->replaceByMock('model', 'checkout/session', $checkoutSessionMock);
+        $customerSessionMock = $this->getModelMock('customer/session', array('init', 'save'));
+        $this->replaceByMock('model', 'customer/session', $customerSessionMock);
+
         $itemOne = new Varien_Object();
         $itemOne->setSku('fee');
 

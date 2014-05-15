@@ -21,18 +21,23 @@ class Netresearch_Billsafe_Test_Model_ConfigTest
 
     public function testIsBillsafeDirectEnabled()
     {
+        $storeCode = Mage_Core_Model_Store::DEFAULT_CODE;
+        $this->setCurrentStore($storeCode);
+
         $path = Netresearch_Billsafe_Model_Config::CONFIG_PATH_BILLSAFE_DIRECT;
 
         //Check if module is initially disabled
-        $this->store->resetConfig();
-        $this->assertFalse($this->config->isBillSafeDirectEnabled());
+        Mage::app()->getStore($storeCode)->resetConfig();
 
-        $this->store->setConfig($path, 1);
-        $this->assertTrue($this->config->isBillSafeDirectEnabled());
+        $this->assertFalse($this->config->isBillSafeDirectEnabled($storeCode));
 
-        $this->store->setConfig($path, 0);
-        $this->assertFalse($this->config->isBillSafeDirectEnabled());
-        $this->store->resetConfig();
+        Mage::app()->getStore($storeCode)->setConfig($path, 1);
+        $this->assertTrue($this->config->isBillSafeDirectEnabled($storeCode));
+
+        Mage::app()->getStore($storeCode)->setConfig($path, 0);
+        $this->assertFalse($this->config->isBillSafeDirectEnabled($storeCode));
+
+        Mage::app()->getStore($storeCode)->resetConfig();
     }
 
     public function testGetBillsafeLogoUrl()
@@ -75,20 +80,17 @@ class Netresearch_Billsafe_Test_Model_ConfigTest
 
     public function testGetBillsafeTimeout()
     {
+        $storeCode = Mage_Core_Model_Store::DEFAULT_CODE;
+        $this->setCurrentStore($storeCode);
+
         $path = Netresearch_Billsafe_Model_Config::CONFIG_PATH_BILLSAFE_TIMEOUT;
-        $storeFirst = Mage::app()->getStore(0)->load(0);
-        $storeFirst->setConfig($path, 30);
 
-        $this->assertEquals(30, $this->config->getBillsafeTimeout());
-        $storeFirst->resetConfig();
+        Mage::app()->getStore($storeCode)->resetConfig();
 
-        /*
-        $storeSecond = Mage::app()->getStore(1)->load(0);
-        $storeSecond->setConfig($path, 60);
+        Mage::app()->getStore($storeCode)->setConfig($path, 30);
+        $this->assertEquals(30, $this->config->getBillsafeTimeout($storeCode));
 
-        $this->assertEquals(60, $this->config->getBillsafeTimeout(1));
-        $storeSecond->resetConfig();
-        */
+        Mage::app()->getStore($storeCode)->resetConfig();
     }
 
     public function testGetBillSafeOrderStatus()
@@ -511,6 +513,18 @@ class Netresearch_Billsafe_Test_Model_ConfigTest
         $this->assertEquals($this->config->getDefaultCustomerGender($code), $defaultGender);
     }
 
+    public function testIsSettlementDownloadEnabled()
+    {
+        $path = Netresearch_Billsafe_Model_Config::CONFIG_PATH_BILLSAFE_DOWNLOAD_SETTLEMENT;
+        $code = Mage_Core_Model_Store::DEFAULT_CODE;
+
+        Mage::app()->getStore($code)->setConfig($path, true);
+        $this->assertTrue($this->config->isSettlementDownloadEnabled($code));
+
+        Mage::app()->getStore($code)->setConfig($path, false);
+        $this->assertFalse($this->config->isSettlementDownloadEnabled($code));
+    }
+
     public function testGetMaxFee()
     {
         $sessionMock = $this->getModelMockBuilder('checkout/session')
@@ -547,7 +561,7 @@ class Netresearch_Billsafe_Test_Model_ConfigTest
 
     }
 
-    public function testGetFeeMaxAmount()
+    public function testGetMaxAmount()
     {
 
         $sessionMock = $this->getModelMockBuilder('checkout/session')
@@ -580,7 +594,6 @@ class Netresearch_Billsafe_Test_Model_ConfigTest
             ->will($this->returnValue(99));
         $this->replaceByMock('model', 'billsafe/client', $clientMock);
         $config = Mage::getModel('billsafe/config');
-        $this->assertEquals(99, $config->getFeeMaxAmount());
-
+        $this->assertEquals(99, $config->getMaxAmount());
     }
 }

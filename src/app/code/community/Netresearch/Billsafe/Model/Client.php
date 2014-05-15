@@ -7,6 +7,9 @@ class Netresearch_Billsafe_Model_Client
     const TYPE_RF = 'refund';
     const TYPE_VO = 'void';
 
+    const MAX_FEE_KEY = 'charge';
+    const MAX_AMOUNT_KEY = 'maxAmount';
+
     protected $_response = null;
     private $_config = null;
     protected $_agreedCharges = null;
@@ -78,13 +81,17 @@ class Netresearch_Billsafe_Model_Client
     /**
      * Returns response error message if one is set
      *
-     * @return string|null
+     * @return string
      */
-    public function getResponseError()
+    public function getResponseErrorMessage()
     {
-        $response = $this->getResponse();
-        return isset($response->errorList) ? $response->errorList[0]->message
-            : null;
+        $error = '';
+        $errorMsgContainer = $this->getErrorMessageContainer();
+            if (property_exists($errorMsgContainer, 'message')) {
+                $error = $errorMsgContainer->message;
+            }
+
+        return $error;
     }
 
     /**
@@ -129,9 +136,8 @@ class Netresearch_Billsafe_Model_Client
                 || $salesObject instanceof Mage_Sales_Model_Order)
         ) {
             $storeId = $salesObject->getStoreId();
-        }
-        if (is_null($storeId)) {
-
+        } else {
+            $storeId = $this->getConfig()->getCurrentScopeId();
         }
         return array(
             'merchant'    => array(
@@ -379,6 +385,14 @@ class Netresearch_Billsafe_Model_Client
         return $this->_agreedCharges;
     }
 
+    public function getMaxAmount(){
+        return $this->getAgreedHandlingCharges(self::MAX_AMOUNT_KEY);
+    }
+
+    public function getMaxFee(){
+        return $this->getAgreedHandlingCharges(self::MAX_FEE_KEY);
+    }
+
     /**
      * checks if order can be processed by BillSAFE
      *
@@ -433,5 +447,105 @@ class Netresearch_Billsafe_Model_Client
         }
         Mage::helper('billsafe/data')->log(Zend_Json::encode($result));
         return $result;
+    }
+
+    /**
+     * Init pause transaction call.
+     *
+     * @param Mage_Sales_Model_Order $order
+     * @param string $transactionId
+     * @param string $orderNumber
+     * @param int $pause
+     * @return boolean
+     */
+    public function pauseTransaction(Mage_Sales_Model_Order $order,
+        $transactionId, $orderNumber, $pause
+    ) {
+        $params                  = $this->getDefaultParams($order);
+        $params['transactionId'] = $transactionId;
+        $params['orderNumber']   = $orderNumber;
+        $params['pause']         = $pause;
+
+        $this->_response = $this
+            ->getClient()
+            ->pauseTransaction($params);
+        return $this->isValid();
+    }
+
+    /**
+     * Init report direct payment call.
+     *
+     * @param Mage_Sales_Model_Order $order
+     * @param string $transactionId
+     * @param string $orderNumber
+     * @param int $pause
+     * @return boolean
+     */
+    public function reportDirectPayment(Mage_Sales_Model_Order $order,
+        $transactionId, $orderNumber, $paymentAmount, $paymentDate
+    ) {
+        $params                  = $this->getDefaultParams($order);
+        $params['transactionId'] = $transactionId;
+        $params['orderNumber']   = $orderNumber;
+        $params['amount']        = $paymentAmount;
+        // BillSAFE only accepts EUR.
+        // Once that changes, currency code might be retrieved via order object.
+        $params['currencyCode']  = 'EUR';
+        $params['date']          = $paymentDate;
+
+        $this->_response = $this
+            ->getClient()
+            ->reportDirectPayment($params);
+        return $this->isValid();
+    }
+
+    /**
+     * retrieves the error message container from the response
+     *
+     * @return stdClass - the container of the error message, empty class if the error list couldn't be obtained
+     */
+    protected function getErrorMessageContainer()
+    {
+        $errorMessageContainer  = new stdClass();
+        $response               = $this->getResponse();
+        if (isset($response->errorList)) {
+            $errorMessageContainer = $response->errorList;
+            if (is_array($errorMessageContainer) && current($errorMessageContainer) instanceof stdClass) {
+                $errorMessageContainer = current($errorMessageContainer);
+            }
+        }
+
+        return $errorMessageContainer;
+    }
+
+    /**
+     * Obtain settlement file from BillSAFE.
+     *
+     * @throws Mage_Core_Exception BillSAFE API exception
+     * @return string File basename
+     */
+    public function getSettlement(Mage_Core_Model_Store $store)
+    {
+        $this->getConfig()->setScopeId($store->getId());
+
+        $params = $this->getDefaultParams();
+        $this->_response = $this->getClient()->getSettlement($params);
+
+        if (!$this->isValid()) {
+            Mage::throwException($this->getResponseErrorMessage());
+        }
+
+        $basename = sprintf(
+            "%s-%s.csv",
+            $this->getResponse()->settlementNumber,
+            str_replace('-', '', $this->getResponse()->settlementDate)
+        );
+        $dirname = Mage::getBaseDir('var') . DS . 'billsafe' . DS . 'settlement' . DS . $store->getCode();
+
+        /* @var $settlementIo Netresearch_Billsafe_Model_Io_Settlement */
+        $settlementIo = Mage::getModel('billsafe/io_settlement');
+        $settlementIo->writeSettlementFile($dirname, $basename, $this->getResponse()->data);
+
+        return $basename;
     }
 }

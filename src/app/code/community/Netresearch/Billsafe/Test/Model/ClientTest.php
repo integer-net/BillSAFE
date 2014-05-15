@@ -379,7 +379,7 @@ class Netresearch_Billsafe_Test_Model_ClientTest extends EcomDev_PHPUnit_Test_Ca
         $this->assertEquals($response, $wsResponse);
         $this->assertTrue($client->isValid());
         $this->assertTrue($client->isAccepted());
-        $this->assertTrue(is_null($client->getResponseError()));
+        $this->assertEquals('', $client->getResponseErrorMessage());
         $this->assertTrue(is_null($client->getResponseToken()));
         $this->assertTrue(is_null($client->getResponseTransactionId()));
 
@@ -559,5 +559,235 @@ class Netresearch_Billsafe_Test_Model_ClientTest extends EcomDev_PHPUnit_Test_Ca
         $result = $client->processOrder(array());
         $this->assertFalse($result['success']);
         $this->assertEquals('Request failed', $result['message']);
+    }
+
+    /**
+     * @test
+     */
+    public function pauseTransaction()
+    {
+        $dataHelperMock = $this->getHelperMock('billsafe/data', array('getStoreIdfromQuote'));
+        $this->replaceByMock('helper', 'billsafe/data', $dataHelperMock);
+
+        $baseClientMock = $this->getModelMock('billsafe/client_base', array('pauseTransaction'));
+        $baseClientMock->expects($this->any())
+            ->method('pauseTransaction')
+            ->will($this->returnValue(null));
+        $this->replaceByMock('model', 'billsafe/client_base', $baseClientMock);
+
+        $clientMock = $this->getModelMock('billsafe/client', array('getDefaultParams', 'isValid'));
+        $clientMock->expects($this->any())
+            ->method('getDefaultParams')
+            ->will($this->returnValue(array()));
+        $clientMock->expects($this->any())
+            ->method('isValid')
+            ->will($this->onConsecutiveCalls(true, false));
+        $this->replaceByMock('model', 'billsafe/client', $clientMock);
+
+        $order         = Mage::getModel('sales/order');
+        $transactionId = '0815';
+        $orderNumber   = '808';
+        $pause         = 7;
+
+        /* @var $soapClient Netresearch_Billsafe_Model_Client */
+        $soapClient = Mage::getModel('billsafe/client');
+        $this->assertTrue($soapClient->pauseTransaction(
+            $order, $transactionId, $orderNumber, $pause
+        ));
+        $this->assertFalse($soapClient->pauseTransaction(
+            $order, $transactionId, $orderNumber, $pause
+        ));
+    }
+
+    public function testGetResponseErrorFromStdObject()
+    {
+        $dataHelperMock = $this->getHelperMock('billsafe/data', array('getStoreIdfromQuote'));
+        $this->replaceByMock('helper', 'billsafe/data', $dataHelperMock);
+
+        $message = 'message';
+        $errorList = new stdClass();
+        $errorList->message = $message;
+        $fakeResponse = new stdClass();
+        $fakeResponse->errorList = $errorList;
+
+        /** @var Netresearch_Billsafe_Model_Client $client */
+        $client = $this->getModelMock('billsafe/client', array('getResponse'));
+        $client->expects($this->once())
+            ->method('getResponse')
+            ->will($this->returnValue($fakeResponse));
+
+        $this->assertEquals($message, $client->getResponseErrorMessage());
+    }
+
+    public function testGetResponseErrorFromArray()
+    {
+        $dataHelperMock = $this->getHelperMock('billsafe/data', array('getStoreIdfromQuote'));
+        $this->replaceByMock('helper', 'billsafe/data', $dataHelperMock);
+
+        $message = 'message';
+        $errorList = new stdClass();
+        $errorList->message = $message;
+        $fakeResponse = new stdClass();
+        $fakeResponse->errorList = array($errorList);
+
+        /** @var Netresearch_Billsafe_Model_Client $client */
+        $client = $this->getModelMock('billsafe/client', array('getResponse'));
+        $client->expects($this->once())
+            ->method('getResponse')
+            ->will($this->returnValue($fakeResponse));
+
+        $this->assertEquals($message, $client->getResponseErrorMessage());
+    }
+
+    public function testGetResponseErrorIsNull()
+    {
+        $dataHelperMock = $this->getHelperMock('billsafe/data', array('getStoreIdfromQuote'));
+        $this->replaceByMock('helper', 'billsafe/data', $dataHelperMock);
+
+        $fakeResponse = new stdClass();
+
+        /* @var $client Netresearch_Billsafe_Model_Client */
+        $client = $this->getModelMock('billsafe/client', array('getResponse'));
+        $client->expects($this->once())
+            ->method('getResponse')
+            ->will($this->returnValue($fakeResponse));
+
+        $this->assertEquals(null, $client->getResponseErrorMessage());
+    }
+
+    /**
+     * @test
+     */
+    public function getSettlementApiFails()
+    {
+        $defaultStore = Mage::app()->getStore(Mage_Core_Model_Store::DEFAULT_CODE);
+
+        $errorMessage = 'Error foo.';
+        $response  = new stdClass();
+        $errorList = new stdClass();
+        $errorList->message = $errorMessage;
+
+        $response->ack       = 'NOK';
+        $response->errorList = $errorList;
+
+        $dataHelperMock = $this->getHelperMock('billsafe/data', array('getStoreIdfromQuote'));
+        $dataHelperMock->expects($this->any())
+            ->method('getStoreIdfromQuote')
+            ->will($this->returnValue($defaultStore->getId()));
+        $this->replaceByMock('helper', 'billsafe/data', $dataHelperMock);
+
+        $baseClientMock = $this->getModelMock('billsafe/client_base', array('getSettlement'));
+        $baseClientMock->expects($this->any())
+            ->method('getSettlement')
+            ->will($this->returnValue($response));
+        $this->replaceByMock('model', 'billsafe/client_base', $baseClientMock);
+
+        $this->setExpectedException('Mage_Core_Exception', $errorMessage);
+        $client = Mage::getModel('billsafe/client');
+        $client->getSettlement($defaultStore);
+    }
+
+    /**
+     * @test
+     */
+    public function getSettlementIoFails()
+    {
+        $defaultStore = Mage::app()->getStore(Mage_Core_Model_Store::DEFAULT_CODE);
+
+        $errorMessage = "Foo isn't writeable";
+        $data = "foo;bar";
+
+        $response = new stdClass();
+        $response->ack              = 'OK';
+        $response->settlementNumber = "TEST_SETTLEMENT";
+        $response->settlementDate   = "2014-04-03";
+        $response->payoutAmount     = "1500.00";
+        $response->data             = base64_encode($data);
+
+        $dataHelperMock = $this->getHelperMock('billsafe/data', array('getStoreIdfromQuote'));
+        $dataHelperMock
+            ->expects($this->any())
+           ->method('getStoreIdfromQuote')
+           ->will($this->returnValue($defaultStore->getId()));
+        $this->replaceByMock('helper', 'billsafe/data', $dataHelperMock);
+
+        $baseClientMock = $this->getModelMock('billsafe/client_base', array('getSettlement'));
+        $baseClientMock->expects($this->any())
+            ->method('getSettlement')
+            ->will($this->returnValue($response));
+        $this->replaceByMock('model', 'billsafe/client_base', $baseClientMock);
+
+        $clientMock = $this->getModelMock('billsafe/client', array('isValid'));
+        $clientMock
+            ->expects($this->any())
+           ->method('isValid')
+           ->will($this->returnValue(true));
+        $this->replaceByMock('model', 'billsafe/client', $clientMock);
+
+        $ioMock = $this->getModelMock('billsafe/io_settlement', array('writeSettlementFile'));
+        $ioMock
+            ->expects($this->any())
+            ->method('writeSettlementFile')
+            ->will($this->throwException(new Varien_Io_Exception($errorMessage)));
+        $this->replaceByMock('model', 'billsafe/io_settlement', $ioMock);
+
+        $this->setExpectedException('Varien_Io_Exception', $errorMessage);
+
+        /* @var $client Netresearch_Billsafe_Model_Client */
+        $client = Mage::getModel('billsafe/client');
+        $client->getSettlement($defaultStore);
+    }
+
+    /**
+     * @test
+     */
+    public function getSettlement()
+    {
+        $defaultStore = Mage::app()->getStore(Mage_Core_Model_Store::DEFAULT_CODE);
+
+        $data = "foo;bar";
+
+        $response = new stdClass();
+        $response->ack              = 'OK';
+        $response->settlementNumber = "TEST_SETTLEMENT";
+        $response->settlementDate   = "2014-04-03";
+        $response->payoutAmount     = "1500.00";
+        $response->data             = base64_encode($data);
+
+        $dataHelperMock = $this->getHelperMock('billsafe/data', array('getStoreIdfromQuote'));
+        $dataHelperMock->expects($this->any())
+           ->method('getStoreIdfromQuote')
+           ->will($this->returnValue($defaultStore->getId()));
+        $this->replaceByMock('helper', 'billsafe/data', $dataHelperMock);
+
+        $baseClientMock = $this->getModelMock('billsafe/client_base', array('getSettlement'));
+        $baseClientMock->expects($this->any())
+            ->method('getSettlement')
+            ->will($this->returnValue($response));
+        $this->replaceByMock('model', 'billsafe/client_base', $baseClientMock);
+
+        $varienIoMock = $this->getMock('Varien_Io_File', array('createDestinationDir', 'write'));
+        $varienIoMock->expects($this->any())
+             ->method('createDestinationDir')
+             ->will($this->returnValue(true));
+        $varienIoMock->expects($this->any())
+             ->method('write')
+             ->will($this->returnValue(strlen($data)));
+        $ioMock = $this->getModelMock('billsafe/io_settlement', array('getFileHandler'));
+        $ioMock
+            ->expects($this->any())
+            ->method('getFileHandler')
+            ->will($this->returnValue($varienIoMock));
+        $this->replaceByMock('model', 'billsafe/io_settlement', $ioMock);
+
+        /* @var $client Netresearch_Billsafe_Model_Client */
+        $client = Mage::getModel('billsafe/client');
+        $basename = sprintf(
+            "%s-%s.csv",
+            $response->settlementNumber,
+            str_replace('-', '', $response->settlementDate)
+        );
+
+        $this->assertEquals($basename, $client->getSettlement($defaultStore));
     }
 }

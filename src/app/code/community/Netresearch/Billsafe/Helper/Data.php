@@ -46,24 +46,6 @@ class Netresearch_Billsafe_Helper_Data extends Mage_Payment_Helper_Data
     }
 
     /**
-     * Cancel given order
-     *
-     * @param Mage_Sales_Model_Order $order
-     * @return void
-     */
-    public function cancelOrder(Mage_Sales_Model_Order $order)
-    {
-        if ($order->canCancel()) {
-            $order->registerCancellation();
-            return $order->save();
-        } else {
-            return $order
-                      ->setState(Mage_Sales_Model_Order::STATE_CANCELED, true)
-                      ->save();
-        }
-    }
-
-    /**
      * Fetches transaction with given transaction id
      *
      * @param string $txnId
@@ -207,4 +189,3 @@ class Netresearch_Billsafe_Helper_Data extends Mage_Payment_Helper_Data
         return $stringToWrap;
     }
 }
-

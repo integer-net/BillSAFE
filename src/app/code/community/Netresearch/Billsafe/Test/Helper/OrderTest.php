@@ -3,6 +3,40 @@
 class Netresearch_Billsafe_Test_Helper_OrderTest
     extends EcomDev_PHPUnit_Test_Case
 {
+    /**
+     * @test
+     */
+    public function hasBillsafePayment()
+    {
+        $billsafeOrder          = Mage::getModel('sales/order');
+        $billsafePayment        = Mage::getModel('sales/order_payment');
+        $billsafeMethodInstance = new Varien_Object();
+        $billsafeCode   = Netresearch_Billsafe_Model_Payment::CODE;
+
+        $billsafeOrder->setPayment(
+            $billsafePayment->setMethodInstance(
+                $billsafeMethodInstance->setCode(
+                    $billsafeCode
+                )
+            )
+        );
+
+        $checkmoOrder          = Mage::getModel('sales/order');
+        $checkmoPayment        = Mage::getModel('sales/order_payment');
+        $checkmoMethodInstance = new Varien_Object();
+        $checkmoCode    = Mage::getModel('payment/method_checkmo')->getCode();
+
+        $checkmoOrder->setPayment(
+            $checkmoPayment->setMethodInstance(
+                $checkmoMethodInstance->setCode(
+                    $checkmoCode
+                )
+            )
+        );
+
+        $this->assertTrue(Mage::helper('billsafe/order')->hasBillsafePayment($billsafeOrder));
+        $this->assertFalse(Mage::helper('billsafe/order')->hasBillsafePayment($checkmoOrder));
+    }
 
     public function testPrevalidateOrder()
     {
@@ -1423,5 +1457,171 @@ class Netresearch_Billsafe_Test_Helper_OrderTest
         $order = Mage::getModel('sales/order')->load(6);
         $return = $method->invoke($helperClass, $order);
         $this->assertTrue($return);
+    }
+
+    /**
+     * @test
+     */
+    public function isBillsafeOnsiteCheckout()
+    {
+        $dataHelperMock = $this->getHelperMock('billsafe/data', array('getQuotefromSession'));
+        $dataHelperMock
+            ->expects($this->any())
+            ->method('getQuotefromSession')
+            ->will($this->returnValue(Mage::getModel('sales/quote')))
+        ;
+        $this->replaceByMock('helper', 'billsafe/data', $dataHelperMock);
+
+        $customerHelperMock = $this->getHelperMock('billsafe/customer', array('getCustomerCompany'));
+        $customerHelperMock
+            ->expects($this->any())
+            ->method('getCustomerCompany')
+            ->will($this->onConsecutiveCalls('Foo GmbH', 'Foo GmbH', '', ''))
+        ;
+        $this->replaceByMock('helper', 'billsafe/customer', $customerHelperMock);
+
+        $configMock = $this->getModelMock('billsafe/config', array('isBillSafeDirectEnabled'));
+        $configMock
+            ->expects($this->any())
+            ->method('isBillSafeDirectEnabled')
+            ->will($this->onConsecutiveCalls(true, false, true, false))
+        ;
+        $this->replaceByMock('model', 'billsafe/config', $configMock);
+
+        /* @var $orderHelper Netresearch_Billsafe_Helper_Order */
+        $orderHelper = Mage::helper('billsafe/order');
+        $this->assertFalse($orderHelper->isBillsafeOnsiteCheckout());
+        $this->assertFalse($orderHelper->isBillsafeOnsiteCheckout());
+        $this->assertTrue($orderHelper->isBillsafeOnsiteCheckout());
+        $this->assertFalse($orderHelper->isBillsafeOnsiteCheckout());
+    }
+
+    /**
+     * @test
+     */
+    public function getCapturedTransaction()
+    {
+        $orderId = 99;
+        $firstItem = 'foo';
+
+        $this->assertInstanceOf(
+            'Mage_Sales_Model_Order_Payment_Transaction',
+            Mage::helper('billsafe/order')->getCapturedTransaction($orderId)
+        );
+
+        $collectionMock = $this->getResourceModelMock(
+            'sales/order_payment_transaction_collection',
+            array('getFirstItem')
+        );
+        $collectionMock
+            ->expects($this->any())
+            ->method('getFirstItem')
+            ->will($this->returnValue($firstItem));
+        $this->replaceByMock('resource_model', 'sales/order_payment_transaction_collection', $collectionMock);
+
+        $this->assertEquals(
+            $firstItem,
+            Mage::helper('billsafe/order')->getCapturedTransaction($orderId)
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function getOpenPaymentAmount()
+    {
+        $orderId = 99;
+        $orderTotal     = 10.01;
+
+        $amountReported = 1.01;
+        $firstItem = new Varien_Object();
+        $firstItem->setData('base_total_report_amount', $amountReported);
+
+        $orderMock = $this->getModelMock('sales/order', array('getId', 'getBaseTotalInvoiced'));
+        $orderMock
+            ->expects($this->any())
+            ->method('getId')
+            ->will($this->returnValue($orderId));
+        $orderMock
+            ->expects($this->any())
+            ->method('getBaseTotalInvoiced')
+            ->will($this->returnValue($orderTotal));
+        $this->replaceByMock('model', 'sales/order', $orderMock);
+
+        $collectionMock = $this->getResourceModelMock('billsafe/direct_payment_collection', array('getFirstItem'));
+        $collectionMock
+            ->expects($this->any())
+            ->method('getFirstItem')
+            ->will($this->returnValue($firstItem));
+        $this->replaceByMock('resource_model', 'billsafe/direct_payment_collection', $collectionMock);
+
+        $this->assertEquals(
+            $orderTotal - $amountReported,
+            Mage::helper('billsafe/order')->getOpenPaymentAmount(Mage::getModel('sales/order'))
+        );
+    }
+
+    /**
+     * @test
+     * @loadFixture ../../../var/fixtures/orders.yaml
+     */
+    public function cancelLastOrderAndRestoreCart()
+    {
+        $itemsCollection = array(Mage::getModel('sales/order_item'));
+        $orderIncrementId = '100000011';
+        $couponCode = 'foo.';
+
+        // session mock
+        $sessionMock = $this->getModelMock('checkout/session', array(
+            'init',
+            'getLastRealOrderId',
+        ));
+        $sessionMock->expects($this->any())
+            ->method('getLastRealOrderId')
+            ->will($this->returnValue($orderIncrementId));
+        $this->replaceByMock('singleton', 'checkout/session', $sessionMock);
+
+        // quote mock
+        $quoteMock = $this->getModelMock('sales/quote', array(
+            'save',
+        ));
+        $quoteMock->expects($this->any())->method('save')->will($this->returnSelf());
+        $this->replaceByMock('model', 'sales/quote', $quoteMock);
+
+        // cart mock
+        $cartMock = $this->getModelMock('checkout/cart', array(
+            'getItemsQty',
+            'getQuote',
+            'save',
+        ));
+        $cartMock->expects($this->any())->method('getItemsQty')->will($this->returnValue(0));
+        $cartMock->expects($this->any())->method('getQuote')->will($this->returnValue(Mage::getModel('sales/quote')->load(1)));
+        $cartMock->expects($this->any())->method('save')->will($this->returnSelf());
+        $this->replaceByMock('singleton', 'checkout/cart', $cartMock);
+
+
+        $orderMock = $this->getModelMock('sales/order', array(
+            'getItemsCollection',
+            'hasCouponCode',
+            'getCouponCode',
+            'cancel',
+            'isCanceled',
+        ));
+        $orderMock->expects($this->any())->method('getItemsCollection')->will($this->returnValue($itemsCollection));
+        $orderMock->expects($this->any())->method('hasCouponCode')->will($this->returnValue((bool)$couponCode));
+        $orderMock->expects($this->any())->method('getCouponCode')->will($this->returnValue($couponCode));
+        $orderMock->expects($this->any())->method('cancel')->will($this->returnSelf());
+        $orderMock->expects($this->any())->method('isCanceled')->will($this->returnValue(false));
+        $this->replaceByMock('model', 'sales/order', $orderMock);
+
+
+        /* @var $orderHelper Netresearch_Billsafe_Helper_Order */
+        $orderHelper = Mage::helper('billsafe/order');
+        $orderHelper->cancelLastOrderAndRestoreCart(Mage::getSingleton('checkout/session'));
+
+        $order = Mage::getModel('sales/order')->loadByIncrementId($orderIncrementId);
+        $this->assertEquals(Mage_Sales_Model_Order::STATE_CANCELED, $order->getState());
+        $this->assertEquals(1, count($order->getStatusHistoryCollection()->getItems()));
+        $this->assertEquals($couponCode, Mage::getSingleton('checkout/cart')->getQuote()->getCouponCode());
     }
 }

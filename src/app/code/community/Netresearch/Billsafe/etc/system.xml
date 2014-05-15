@@ -299,7 +299,7 @@
                                 <active>1</active>
                             </depends>
                         </specificcountry>
-                        
+
                         <default_gender>
                             <label>Default Customer Gender</label>
                             <comment>If customer gender cannot be determined from account data, use this as default value.</comment>
@@ -309,7 +309,19 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
+                            <depends><active>1</active></depends>
                         </default_gender>
+
+                        <download_settlement>
+                            <label>Download Settlement Files</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <depends><active>1</active></depends>
+                        </download_settlement>
                     </fields>
                 </billsafe>
             </groups>
