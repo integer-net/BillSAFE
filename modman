@@ -6,4 +6,5 @@ src/app/design/frontend/base/default/template/*         app/design/frontend/base
 src/app/etc/modules/*                                   app/etc/modules/
 src/app/locale/de_DE/*                                  app/locale/de_DE/
 src/app/locale/en_US/*                                  app/locale/en_US/
+src/skin/adminhtml/default/default/js/*                 skin/adminhtml/default/default/js/
 src/skin/frontend/base/default/css/*                    skin/frontend/base/default/css/
