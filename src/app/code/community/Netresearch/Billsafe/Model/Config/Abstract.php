@@ -11,7 +11,7 @@ class Netresearch_Billsafe_Model_Config_Abstract extends Mage_Core_Model_Config_
     protected $_config;
     protected $_dataHelper;
     protected $_customerHelper;
-
+    protected $_realConfigData = null;
 
 
     /**
@@ -72,9 +72,6 @@ class Netresearch_Billsafe_Model_Config_Abstract extends Mage_Core_Model_Config_
     }
 
 
-
-    protected $_realConfigData = array();
-
     /**
      * apply new settings temporarily
      *
@@ -90,10 +87,11 @@ class Netresearch_Billsafe_Model_Config_Abstract extends Mage_Core_Model_Config_
             && 1 == $newConfigData['active']
         ) {
             // save old values
-            $this->_realConfigData['active']           = $store->getConfig(Netresearch_Billsafe_Model_Config::CONFIG_PATH_ACTIVE);
-            $this->_realConfigData['fee_active']       = $store->getConfig(Netresearch_Billsafe_Model_Config::CONFIG_PATH_PAYMENT_FEE_ACTIVE);
-            $this->_realConfigData['merchant_id']      = $store->getConfig(Netresearch_Billsafe_Model_Config::CONFIG_PATH_MERCHAND_ID);
-            $this->_realConfigData['merchant_license'] = $store->getConfig(Netresearch_Billsafe_Model_Config::CONFIG_PATH_MERCHAND_LICENSE);
+            $this->_realConfigData = new Varien_Object();
+            $this->_realConfigData->setActive($store->getConfig(Netresearch_Billsafe_Model_Config::CONFIG_PATH_ACTIVE));
+            $this->_realConfigData->setFeeActive($store->getConfig(Netresearch_Billsafe_Model_Config::CONFIG_PATH_PAYMENT_FEE_ACTIVE));
+            $this->_realConfigData->setMerchantId($store->getConfig(Netresearch_Billsafe_Model_Config::CONFIG_PATH_MERCHAND_ID));
+            $this->_realConfigData->setMerchantLicense($store->getConfig(Netresearch_Billsafe_Model_Config::CONFIG_PATH_MERCHAND_LICENSE));
             // temporarily set new values
             $store->setConfig(Netresearch_Billsafe_Model_Config::CONFIG_PATH_MERCHAND_ID, $newConfigData['merchant_id']);
             $store->setConfig(Netresearch_Billsafe_Model_Config::CONFIG_PATH_MERCHAND_LICENSE, $newConfigData['merchant_license']);
@@ -107,11 +105,14 @@ class Netresearch_Billsafe_Model_Config_Abstract extends Mage_Core_Model_Config_
 
     protected function restoreConfig()
     {
-        $scopeId = $this->getScopeId();
-        $store = Mage::app()->getStore($scopeId);
-        $store->setConfig(Netresearch_Billsafe_Model_Config::CONFIG_PATH_MERCHAND_ID, $this->_realConfigData['merchant_id']);
-        $store->setConfig(Netresearch_Billsafe_Model_Config::CONFIG_PATH_MERCHAND_LICENSE, $this->_realConfigData['merchant_license']);
-        $store->setConfig(Netresearch_Billsafe_Model_Config::CONFIG_PATH_ACTIVE, $this->_realConfigData['active']);
-        $store->setConfig(Netresearch_Billsafe_Model_Config::CONFIG_PATH_PAYMENT_FEE_ACTIVE, $this->_realConfigData['fee_active']);
+        // restore the data just in case we have config data to set
+        if ($this->_realConfigData instanceof Varien_Object) {
+            $scopeId = $this->getScopeId();
+            $store = Mage::app()->getStore($scopeId);
+            $store->setConfig(Netresearch_Billsafe_Model_Config::CONFIG_PATH_MERCHAND_ID, $this->_realConfigData->getMerchantId());
+            $store->setConfig(Netresearch_Billsafe_Model_Config::CONFIG_PATH_MERCHAND_LICENSE, $this->_realConfigData->getMerchantLicense());
+            $store->setConfig(Netresearch_Billsafe_Model_Config::CONFIG_PATH_ACTIVE, $this->_realConfigData->getActive());
+            $store->setConfig(Netresearch_Billsafe_Model_Config::CONFIG_PATH_PAYMENT_FEE_ACTIVE, $this->_realConfigData->getFeeActive());
+        }
     }
 }
