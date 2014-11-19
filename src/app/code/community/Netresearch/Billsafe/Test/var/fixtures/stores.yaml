@@ -1,0 +1,9 @@
+scope:
+  store:
+   - store_id: 4
+     code: en
+     website_id: 1
+     group_id: 1
+     name: Englisch
+     sort_order: 0
+     is_active: 1

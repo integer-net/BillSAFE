@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<layout>
+    <adminhtml_system_config_edit>
+        <reference name="content">
+            <block 
+                type="billsafe/adminhtml_system_config_paymentfeecheck" 
+                name="billsafe_paymentfeecheck" 
+                template="billsafe/system/config/paymentfeecheck.phtml">
+            </block>
+        </reference>
+    </adminhtml_system_config_edit>
+    
+    <adminhtml_sales_order_view>
+        <reference name="head">
+            <action method="addItem"><type>skin_js</type><name>js/netresearch_billsafe/tools.js</name></action>
+        </reference>
+        <reference name="sales_order_tabs">
+            <block type="billsafe/adminhtml_sales_order_view_tab_billsafe"
+                   name="order_tab_billsafe"
+                   template="billsafe/sales/order/view/tab/billsafe.phtml">
+                <block type="billsafe/adminhtml_sales_order_view_pause_form"
+                       name="billsafe_pause_transaction"
+                       template="billsafe/sales/order/view/pause/form.phtml"
+                />
+                <block type="billsafe/adminhtml_sales_order_view_payment_form"
+                       name="billsafe_report_direct"
+                       template="billsafe/sales/order/view/payment/form.phtml">
+                   <block type="billsafe/adminhtml_sales_order_view_payment_overview"
+                          name="billsafe_direct_payments"
+                          template="billsafe/sales/order/view/payment/overview.phtml"
+                    />
+                </block>
+            </block>
+            <action method="addTab"><name>order_billsafe</name><block>order_tab_billsafe</block></action>
+        </reference>
+    </adminhtml_sales_order_view>
+</layout>

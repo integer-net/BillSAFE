@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <modules>
+        <Netresearch_Billsafe>
+            <active>true</active>
+            <codePool>community</codePool>
+            <depends>
+                <Mage_Payment />
+                <Mage_Sales />
+                <Mage_Core />
+            </depends>
+        </Netresearch_Billsafe>
+    </modules>
+</config>

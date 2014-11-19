@@ -1,0 +1,216 @@
+tables:
+  sales/order:
+   - entity_id:           11
+     increment_id:        100000011
+     shipping_address_id: 42
+     base_grand_total:    119.00
+     grand_total:         119.00
+     currency:            'EUR'
+     customer_gender:     1
+     shipping_method:     'flatrate_flatrate'
+     customer_email:      'hubertus.von.fuerstenberg@trash-mail.com'
+     state:               'pending_payment'
+     status:              'pending_payment'
+     quote_id:            23
+
+
+   - entity_id:           12
+     increment_id:        100000012
+     shipping_address_id: 42
+     base_grand_total:    119.00
+     grand_total:         119.00
+     currency:            'EUR'
+     customer_gender:     1
+     shipping_method:     'flatrate_flatrate'
+     customer_email:      'hubertus.von.fuerstenberg@trash-mail.com'
+     state:               'pending_payment'
+     status:              'pending_payment'
+     quote_id:            24
+
+   - entity_id:           13
+     increment_id:        100000013
+     shipping_address_id: 42
+     base_grand_total:    119.00
+     grand_total:         119.00
+     currency:            'EUR'
+     customer_gender:     1
+     shipping_method:     'flatrate_flatrate'
+     customer_email:      'hubertus.von.fuerstenberg@trash-mail.com'
+     state:               'pending_payment'
+     status:              'pending_payment'
+     quote_id:            24
+
+   - entity_id:           14
+     increment_id:        100000014
+     shipping_address_id: 42
+     base_grand_total:    119.00
+     grand_total:         119.00
+     currency:            'EUR'
+     customer_gender:     1
+     shipping_method:     'flatrate_flatrate'
+     customer_email:      'hubertus.von.fuerstenberg@trash-mail.com'
+     state:               'pending_payment'
+     status:              'pending_payment'
+     quote_id:            24
+
+  sales/quote:
+   - entity_id:           1
+     increment_id:        100000011
+     shipping_address_id: 1
+     base_grand_total:    119.00
+     grand_total:         119.00
+     currency:            'EUR'
+     customer_gender:     1
+     shipping_method:     'flatrate_flatrate'
+     customer_email:      'hubertus.von.fuerstenberg@trash-mail.com'
+     state:               'pending_payment'
+     status:              'pending_payment'
+
+   - entity_id:           2
+     increment_id:        100000012
+     billing_address_id:  1
+     shipping_address_id: 2
+     base_grand_total:    119.00
+     grand_total:         119.00
+     currency:            'EUR'
+     customer_gender:     1
+     shipping_method:     'flatrate_flatrate'
+     customer_email:      'hubertus.von.fuerstenberg@trash-mail.com'
+     state:               'pending_payment'
+     status:              'pending_payment'
+
+
+  sales/quote_address:
+   - address_id:    1
+     quote_id:      1
+     address_type: 'billing'
+     firstname:    'Hubertus'
+     postcode:     '04229'
+     lastname:     'Fürstenberg'
+     street:       'An der Tabaksmühle 3a'
+     city:         'Leipzig'
+     email:        'hubertus.von.fuerstenberg@trash-mail.com'
+     country_id:   'DE'
+     prefix:       'Prof. Dr.'
+     middlename:   'von'
+     suffix:       'MdL'
+     telephone:        123456
+
+   - address_id:    2
+     quote_id:      2
+     address_type: 'shipping'
+     firstname:    'Hubertus'
+     postcode:     '04229-DE'
+     lastname:     'Fürstenberg'
+     street:       'An der Tabaksmühle 3b'
+     city:         'Leipzig'
+     email:        'hubertus.von.fuerstenberg@trash-mail.com'
+     country_id:   'DE'
+     prefix:       'Prof. Dr.'
+     middlename:   'von'
+     suffix:       'MdL'
+     company:      'Netresearch'
+     telephone:     123456
+
+   - address_id:    3
+     quote_id:      2
+     address_type: 'billing'
+     firstname:    'Hubertus'
+     postcode:     '04229'
+     lastname:     'Fürstenberg'
+     street:       'An der Tabaksmühle 3c'
+     city:         'Leipzig'
+     email:        'hubertus.von.fuerstenberg@trash-mail.com'
+     country_id:   'DE'
+     prefix:       'Prof. Dr.'
+     middlename:   'von'
+     suffix:       'MdL'
+     company:      'Netresearch'
+     telephone:     123456
+
+  sales/order_payment:
+   - entity_id:               1
+     parent_id:               11
+     additional_information:
+     method:                  'billsafe'
+
+   - entity_id:               2
+     parent_id:               12
+     additional_information:
+     method:                  'billsafe'
+
+   - entity_id:               3
+     parent_id:               13
+     additional_information:
+     method:                  'billsafe'
+
+   - entity_id:               4
+     parent_id:               14
+     additional_information:
+     method:                  'billsafe'
+
+  sales/invoice:
+   - entity_id: 1
+     order_id: 12
+
+   - entity_id: 2
+     order_id: 13
+
+   - entity_id: 3
+     order_id: 14
+
+
+  sales/invoice_item:
+   - entity_id: 1
+     parent_id: 1
+     order_item_id: 1
+
+   - entity_id: 2
+     parent_id: 2
+     order_item_id: 2
+
+   - entity_id: 3
+     parent_id: 2
+     order_item_id: 3
+
+   - entity_id: 4
+     parent_id: 3
+     order_item_id: 4
+
+   - entity_id: 5
+     parent_id: 3
+     order_item_id: 5
+
+  sales/order_item:
+   - item_id: 1
+     order_id: 12
+     qty_ordered: 2.0000
+     qty_shipped: 2.0000
+     qty_invoiced: 2.0000
+
+   - item_id: 2
+     order_id: 13
+     qty_ordered: 2.0000
+     qty_shipped: 2.0000
+     qty_invoiced: 2.0000
+
+   - item_id: 3
+     order_id: 13
+     qty_ordered: 2.0000
+     qty_shipped: 2.0000
+     qty_invoiced: 1.0000
+
+   - item_id: 4
+     order_id: 14
+     parent_item_id: 1
+     qty_ordered: 2.0000
+     qty_shipped: 2.0000
+     qty_invoiced: 2.0000
+
+   - item_id: 5
+     order_id: 14
+     qty_ordered: 2.0000
+     qty_shipped: 2.0000
+     qty_invoiced: 1.0000
+
+  sales/order_status_history:

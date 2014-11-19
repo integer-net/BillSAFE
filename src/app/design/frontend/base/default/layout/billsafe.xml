@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layout>
+
+    <checkout_onepage_index>
+        <reference name="head">
+            <reference name="head">
+                <action method="addCss"><stylesheet>css/billsafe.css</stylesheet></action>
+            </reference>
+            <block type="core/text" name="google.cdn.jquery">
+                <action method="setText">
+                    <text><![CDATA[<script type="text/javascript" src="https://fn.billsafe.de/fb/js/lazyload-min.js"></script>]]></text>
+                </action>
+            </block>
+        </reference>
+    </checkout_onepage_index>
+</layout>

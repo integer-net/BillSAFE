@@ -1,0 +1,35 @@
+<?php /* @var $this Netresearch_Billsafe_Block_Info */ ?>
+<?php echo $this->__('Payed with BillSAFE.'); ?>
+<?php if ($this->isBillsafeCancelled()): ?>
+    <?php echo $this->__('Billsafe payment was cancelled.') ?>
+<?php else: ?>
+    {{pdf_row_separator}}
+    {{pdf_row_separator}}
+    <?php echo $this->getBillsafePdfData('legalNote') ?>
+    {{pdf_row_separator}}
+    {{pdf_row_separator}}
+    <?php if ($this->hasBillsafeData()): ?>
+        <?php echo $this->__('Recipient') ?>: <?php echo $this->getRecipient(); ?>
+        {{pdf_row_separator}}
+
+        <?php if (0 < strlen(trim($this->getBankCode())) && 0 < strlen(trim($this->getAccountNumber()))): ?>
+            <?php echo $this->__('Bank code') ?>: <?php echo $this->getBankCode() ?>
+            {{pdf_row_separator}}
+            <?php echo $this->__('Account Number') ?>: <?php echo $this->getAccountNumber() ?>
+        <?php endif; ?>
+        {{pdf_row_separator}}
+        <?php echo $this->__('Bank Name') ?>: <?php echo $this->getBankName() ?>
+        {{pdf_row_separator}}
+        <?php if (0 < strlen(trim($this->getBic())) && 0 < strlen(trim($this->getIban()))): ?>
+            <?php echo $this->__('BIC') ?>: <?php echo $this->getBic() ?>
+            {{pdf_row_separator}}
+            <?php echo $this->__('IBAN') ?>: <?php echo $this->getIban() ?>
+            {{pdf_row_separator}}
+        <?php endif; ?>
+        <?php echo $this->__('Reference') ?>: <?php echo $this->getReference() ?>
+        {{pdf_row_separator}}
+        <?php echo $this->__('Amount') ?>: <?php echo Mage::helper('core')->currency($this->getAmount()) ?>
+        {{pdf_row_separator}}
+        <?php echo $this->getBillsafePdfData('Note', 'Note') ?>
+    <?php endif; ?>
+<?php endif; ?>

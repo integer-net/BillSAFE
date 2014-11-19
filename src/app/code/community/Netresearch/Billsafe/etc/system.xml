@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <sections>
+        <payment>
+            <groups>
+                <billsafe translate="label" module="billsafe">
+                    <label>BillSAFE</label>
+
+                    <sort_order>650</sort_order>
+                    <frontend_type>text</frontend_type>
+                    <comment><![CDATA[
+                        <p><a target='billsafe-client' href='https://client.billsafe.de/'><img src="https://images.billsafe.de/image/image/id/04105000caae" /></a></p>
+                        </p><a target='billsafe-client' href='https://client.billsafe.de/'>BillSAFE Händlerportal</a></p>
+                        <p><span style="color: red">Achtung:</span> Für einen reibungslosen Ablauf müssen Steuerregeln definiert sein.</p>]]></comment>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+
+                    <fields>
+                        <active translate="Label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </active>
+
+                        <sandbox translate="Label">
+                            <label>Sandbox mode</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends><active>1</active></depends>
+                        </sandbox>
+
+                        <title translate="Label">
+                            <label>Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends><active>1</active></depends>
+                        </title>
+
+                        <order_status translate="label">
+                            <label>New order status</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_order_status</source_model>
+                            <sort_order>4</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends><active>1</active></depends>
+                        </order_status>
+
+                        <merchant_id translate="Label">
+                            <label>Merchant ID</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends><active>1</active></depends>
+                        </merchant_id>
+
+                        <merchant_license translate="label comment">
+                            <label>Merchant license</label>
+                            <comment><![CDATA[You can find this by logging in to the <a href="https://client.billsafe.de/main/mainmenu">BillSAFE payment backend</a>.]]></comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>6</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends><active>1</active></depends>
+                        </merchant_license>
+
+                        <merchant_public_key translate="label comment">
+                            <label>Merchant public key</label>
+                            <comment><![CDATA[You can find this by logging in to the <a href="https://client.billsafe.de/main/mainmenu">BillSAFE payment backend</a>.]]></comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends><active>1</active></depends>
+                        </merchant_public_key>
+
+                        <billsafe_logo translate="Label">
+                            <label>BillSAFE logo url</label>
+                            <comment>Is used to show on payment page during checkout.</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>8</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends><active>1</active></depends>
+                        </billsafe_logo>
+
+                        <shop_logo translate="Label">
+                            <label>Shop logo url</label>
+                            <comment>Is used to show on BillSAFE payment page during payment.</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>9</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends><active>1</active></depends>
+                        </shop_logo>
+
+                        <enable_billsafe_direct translate="label comment">
+                            <label>Enable Onsite Checkout</label>
+                            <comment><![CDATA[BillSAFE recommends Onsite Checkout. Your customers can complete their purchase quickly and easily with only one click. Best of all: there is no redirect to the BillSAFE gateway. The customer remains on the website.<br/>Activation required, please contact <a href="mailto:support@billsafe.de">support@billsafe.de</a>.]]></comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends>
+                                <active>1</active>
+                            </depends>
+
+                        </enable_billsafe_direct>
+
+                        <min_amount translate="Label">
+                            <label>Minimal amount</label>
+                            <comment>Minimal amount to enable BillSAFE payment</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>11</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends><active>1</active></depends>
+                        </min_amount>
+
+                        <max_amount translate="Label">
+                            <label>Maximal amount</label>
+                            <comment>Maximal amount to enable BillSAFE payment</comment>
+                            <backend_model>billsafe/config_maxamount</backend_model>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>12</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends><active>1</active></depends>
+                        </max_amount>
+
+                        <fee_active>
+                            <label>Payment Fee</label>
+                            <frontend_type>select</frontend_type>
+                            <config_path>payment_services/paymentfee/active</config_path>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>19</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends><active>1</active></depends>
+                        </fee_active>
+
+                        <sku translate="label comment">
+                            <config_path>payment_services/paymentfee/sku</config_path>
+                            <label>Payment Fee SKU</label>
+                            <comment>product used for payment fee for BillSAFE payments</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends>
+                                <fee_active>1</fee_active>
+                                <active>1</active>
+                            </depends>
+                            <!--<frontend_model>paymentfee/adminhtml_product_button</frontend_model>-->
+                        </sku>
+
+                        <max_fee_amount translate="label comment">
+                            <label>Maximum/Default Fee</label>
+                            <config_path>payment_services/paymentfee/max_fee_amount</config_path>
+                            <comment>in default currency</comment>
+                            <backend_model>billsafe/config_maxfee</backend_model>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends>
+                                <fee_active>1</fee_active>
+                                <active>1</active>
+                            </depends>
+                        </max_fee_amount>
+
+                        <disable_after_exceeding_max_fee_amount translate="label comment">
+                            <label>Disable payment method if fee exceeds maximum amount</label>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends>
+                                <fee_active>1</fee_active>
+                                <active>1</active>
+                            </depends>
+                        </disable_after_exceeding_max_fee_amount>
+
+                        <disable_after_exceeding_min_fee_amount translate="label comment">
+                            <label>Disable payment method if fee exceeds minimum amount</label>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends>
+                                <fee_active>1</fee_active>
+                                <active>1</active>
+                            </depends>
+                        </disable_after_exceeding_min_fee_amount>
+
+                        <fee_percent translate="label comment">
+                            <label>Fee in percent</label>
+                            <config_path>payment_services/paymentfee/relative_fee</config_path>
+                            <comment>of subtotal incl. shipment. If this field is left empty, the Maximum/Default fee amount is used in every BillSAFE order.</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends>
+                                <fee_active>1</fee_active>
+                                <active>1</active>
+                            </depends>
+                        </fee_percent>
+
+                        <min_fee_amount translate="label comment">
+                            <label>Minimal Fee</label>
+                            <config_path>payment_services/paymentfee/min_fee_amount</config_path>
+                            <comment>in default currency</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends>
+                                <fee_active>1</fee_active>
+                                <active>1</active>
+                            </depends>
+                        </min_fee_amount>
+
+                        <sort_order translate="label">
+                            <label>Sort Order</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends><active>1</active></depends>
+                        </sort_order>
+
+                        <logging translate="label">
+                            <label>Enable logging</label>
+                            <comment>This enables logging of all requests and responses to billsafe api. For security reasons do not enable this in production mode!</comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends><active>1</active></depends>
+                        </logging>
+
+                        <allowspecific translate="label">
+                            <label>Payment Applicable From</label>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>110</sort_order>
+                            <source_model>adminhtml/system_config_source_payment_allspecificcountries</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <depends><active>1</active></depends>
+                        </allowspecific>
+
+                        <specificcountry translate="label">
+                            <label>Countries Payment Applicable From</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <sort_order>120</sort_order>
+                            <source_model>adminhtml/system_config_source_country</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <depends>
+                                <allowspecific>1</allowspecific>
+                                <active>1</active>
+                            </depends>
+                        </specificcountry>
+
+                        <default_gender>
+                            <label>Default Customer Gender</label>
+                            <comment>If customer gender cannot be determined from account data, use this as default value.</comment>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>130</sort_order>
+                            <source_model>billsafe/adminhtml_system_config_source_gender</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends><active>1</active></depends>
+                        </default_gender>
+
+                        <download_settlement>
+                            <label>Download Settlement Files</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <depends><active>1</active></depends>
+                        </download_settlement>
+                    </fields>
+                </billsafe>
+            </groups>
+        </payment>
+    </sections>
+</config>
