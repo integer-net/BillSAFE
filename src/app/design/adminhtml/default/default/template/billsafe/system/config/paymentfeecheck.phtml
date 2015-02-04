@@ -1,0 +1,15 @@
+<?php 
+if ($this->isModulePaymentFeeInstalled() === true):
+?>
+    <script type="text/javascript">
+    Event.observe(window, 'load', function() {
+        if (null != $('payment_services_paymentfee-head'))
+        {
+        	$('payment_services_paymentfee-head').parentNode.hide();
+        	$('payment_services_paymentfee').hide();
+        }
+    });
+    </script>
+<?php
+endif;
+?>

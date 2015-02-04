@@ -1,0 +1,71 @@
+<?php /* @var $this Netresearch_Billsafe_Block_Payment_Form */ ?>
+<?php $_code = $this->getMethodCode() ?>
+
+<?php if ($this->getMethod() instanceof Netresearch_Billsafe_Model_Payment && $this->getMethod()->isAvailableCheck() == false): ?>
+
+    <?php echo $this->escapeHtml($this->getMethod()->getUnavailableMessage()); ?>
+    <script type="text/javascript">
+        $('p_method_billsafe').disabled = true;
+        $('p_method_billsafe').checked = false;
+    </script>
+
+<?php else: ?>
+
+    <ul class="form-list" id="payment_form_info_<?php echo $_code ?>">
+        <li>
+            <div>
+                <?php echo $this->__('Paying via invoice allows you to appraise your items and pay at your convenience.') ?><br />
+                <?php echo $this->getFeeText(); ?>
+            </div>
+        </li>
+    </ul>
+
+    <?php if ($this->isBillsafeDirectEnabled()): ?>
+        <ul class="form-list" id="payment_form_<?php echo $_code ?>" style="display:none;">
+            <?php if (!$this->getCustomerCompany()): ?>
+                <?php $_dob = $this->getLayout()->createBlock('billsafe/customer_widget_dob') ?>
+                    <li class="fields">
+                        <div class="field">
+                            <?php echo $_dob->setDate($this->getCustomerDob())->setFieldIdFormat('payment:%s')->setFieldNameFormat('payment[%s]')->toHtml() ?>
+                        </div>
+                    </li>
+            <?php endif; ?>
+            <li>
+                <div style="float: left;">
+                    <input type="checkbox" name="payment[<?php echo $_code ?>_terms_accepted]" id="<?php echo $_code ?>_terms_accepted" class="required-entry">
+                </div>
+                <label class="required" id="label_billsafe_terms_accepted" for="<?php echo $_code ?>_terms_accepted" >
+                    <?php
+                    $_msgPrivacy = $this->__(
+                        'I agree with the <a href="%s" target="_blank">privacy policy</a>, the <a href="%s" target="_blank">credit check</a> of <a href="%s" target="_blank">Paypal</a>.', 'http://www.billsafe.de/privacy-policy/buyer', 'https://www.billsafe.de/privacy-policy/credit-check', 'https://www.billsafe.de/imprint'
+                        )
+                    ?>
+                    <?php
+                    $_msgTerms = $this->__(
+                        'The <a href="%s" target="_blank">BillSAFE terms and conditions</a> are applied.', 'http://www.billsafe.de/resources/docs/pdf/kaeufer_AGB.pdf'
+                        )
+                    ?>
+                    <?php echo $_msgPrivacy; ?><br />
+                    <?php echo $_msgTerms; ?>
+                </label>
+                <div id="advice-required-entry-billsafe_terms_accepted" class="validation-advice" style="display:none;">
+                    <?php echo $this->__('Please accept the BillSAFE terms and conditions') ?>
+                </div>
+            </li>
+        </ul>
+
+        <script>
+            LazyLoad.js("https://fn.billsafe.de/fb/js/fb-min.js", function() {
+                runFb({
+                    f: '<?php echo md5(Mage::getSingleton('checkout/session')->getSessionId()); ?>',
+                    s: '<?php echo $this->getMerchantPublicKey(); ?>',
+                    e: 'billsafe_terms_accepted'
+                });
+            });
+        </script>
+        <noscript>
+            <img src="https://fn.billsafe.de/fb/f.png?f=<?php echo md5(Mage::getSingleton('checkout/session')->getSessionId()); ?>&s=<?php echo $this->getMerchantPublicKey(); ?>" />
+        </noscript>
+    <?php endif; // end billsafe direct ?>
+
+<?php endif; // end billsafe available ?>

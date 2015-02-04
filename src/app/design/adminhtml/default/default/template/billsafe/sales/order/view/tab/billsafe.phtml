@@ -1,0 +1,25 @@
+<?php /* @var $this Netresearch_Billsafe_Block_Adminhtml_Sales_Order_View_Tab_Billsafe */ ?>
+<div class="box-left">
+    <div class="entry-edit">
+        <div class="entry-edit-head">
+            <h4><?php echo Mage::helper('billsafe/data')->__("Stop dunning run") ?></h4>
+        </div>
+        <form name="billsafe-pause-form" id="billsafe-pause-form" method="post">
+            <fieldset>
+                <?php echo $this->getChildHtml('billsafe_pause_transaction') ?>
+            </fieldset>
+        </form>
+    </div>
+</div>
+<div class="box-right">
+    <div class="entry-edit">
+        <div class="entry-edit-head">
+            <h4><?php echo Mage::helper('billsafe/data')->__("Report a direct payment to BillSAFE") ?></h4>
+        </div>
+        <form name="billsafe-report-direct" id="billsafe-report-direct" method="post">
+            <fieldset>
+                <?php echo $this->getChildHtml('billsafe_report_direct') ?>
+            </fieldset>
+        </form>
+    </div>
+</div>

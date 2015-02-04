@@ -1,0 +1,58 @@
+<?php echo $this->__('Payed with BillSAFE.'); ?>
+<?php if ($this->isBillsafeCancelled()): ?>
+    <p><?php echo $this->__('Billsafe payment was cancelled.') ?></p>
+<?php else: ?>
+    <p><?php echo $this->htmlEscape($this->getLegalNote()); ?></p>
+    <?php if ($this->hasBillsafeData()): ?>
+        <div>
+            <style type="text/css">
+                .form-list td.label label { width: auto; vertical-align: top }
+                .form-list td {vertical-align: top; padding: 3px; }
+            </style>
+            <table cellspacing="0" class="form-list">
+                <tbody>
+                    <tr>
+                        <td class="label"><label><?php echo $this->__('Recipient') ?></label></td>
+                        <td><?php echo $this->htmlEscape($this->getRecipient()); ?></td>
+                    </tr>
+                    <?php if (0 < strlen(trim($this->getBankCode())) && 0 < strlen(trim($this->getAccountNumber()))): ?>
+                        <tr>
+                            <td class="label"><label><?php echo $this->__('Bank code') ?></label></td>
+                            <td><?php echo $this->htmlEscape($this->getBankCode()) ?></td>
+                        </tr>
+                        <tr>
+                            <td class="label"><label><?php echo $this->__('Account Number') ?></label></td>
+                            <td><?php echo $this->htmlEscape($this->getAccountNumber()) ?></td>
+                        </tr>
+                    <?php endif; ?>
+                    <tr>
+                        <td class="label"><label><?php echo $this->__('Bank Name') ?></label></td>
+                        <td><?php echo $this->htmlEscape($this->getBankName()) ?></td>
+                    </tr>
+                    <?php if (0 < strlen(trim($this->getBic())) && 0 < strlen(trim($this->getIban()))): ?>
+                        <tr>
+                            <td class="label"><label><?php echo $this->__('BIC') ?></label></td>
+                            <td><?php echo $this->htmlEscape($this->getBic()) ?></td>
+                        </tr>
+                        <tr>
+                            <td class="label"><label><?php echo $this->__('IBAN') ?></label></td>
+                            <td><?php echo $this->htmlEscape($this->getIban()) ?></td>
+                        </tr>
+                    <?php endif; ?>
+                    <tr>
+                        <td class="label"><label><?php echo $this->__('Reference') ?></label></td>
+                        <td><?php echo $this->htmlEscape($this->getReference()) ?></td>
+                    </tr>
+                    <tr>
+                        <td class="label"><label><?php echo $this->__('Amount') ?></label></td>
+                        <td><?php echo Mage::helper('core')->currency($this->getAmount()) ?></td>
+                    </tr>
+                    <tr>
+                        <td class="label"><label><?php echo $this->__('Note') ?></label></td>
+                        <td><?php echo $this->htmlEscape($this->getNote()) ?></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
+<?php endif; ?>

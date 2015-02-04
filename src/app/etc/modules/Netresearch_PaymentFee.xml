@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <modules>
+        <Netresearch_PaymentFee>
+            <version>0.1.0</version>
+            <active>true</active>
+            <depends>
+                <!--
+                    <Netresearch_Billsafe />
+                -->
+            </depends>
+            <extension_name>Paymentfee</extension_name>
+            <codePool>community</codePool>
+        </Netresearch_PaymentFee>
+    </modules>
+</config>

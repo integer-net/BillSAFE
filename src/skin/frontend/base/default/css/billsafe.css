@@ -1,0 +1,14 @@
+.form-list .billsafe-customer-dob .dob-month,
+.form-list .billsafe-customer-dob .dob-day,
+.form-list .billsafe-customer-dob .dob-year { float:left; width:85px; }
+.form-list .billsafe-customer-dob input.input-text { display:block; width:74px; }
+.form-list .billsafe-customer-dob label { font-size:10px; font-weight:normal; color:#888; width: auto; }
+.form-list .billsafe-customer-dob .dob-day,
+.form-list .billsafe-customer-dob .dob-month { width:60px; }
+.form-list .billsafe-customer-dob .dob-day input.input-text,
+.form-list .billsafe-customer-dob .dob-month input.input-text { width:46px; }
+.form-list .billsafe-customer-dob .dob-year { width:140px; }
+.form-list .billsafe-customer-dob .dob-year input.input-text { width:134px; }
+label[for='payment:month'].required { text-align: left; width: auto; }
+#label_billsafe_terms_accepted {width: auto; float: none; margin-left: 20px; display: block; text-align: left;}
+#label_billsafe_terms_accepted a {float: none; margin: 0;}

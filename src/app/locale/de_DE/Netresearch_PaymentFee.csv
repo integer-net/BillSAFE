@@ -1,0 +1,5 @@
+"Payment fee","Zahlungsartenaufschlag"
+"Payment fee SKU","Produkt-SKU Zahlungsartenaufschlag"
+"Enable fee for payment methods","Zahlungsarten mit Aufschlag"
+"Payment fee (%s %% of Total %s)","Zahlungsaufschlag (%s %% vom Gesamtwert von %s)"
+"%s (%s %% of Total %s)","%s (%s %% vom Gesamtwert von %s)","

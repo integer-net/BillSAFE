@@ -1,0 +1,17 @@
+<?php /* @var $this Netresearch_Billsafe_Block_Adminhtml_Sales_Order_View_Pause_Form */ ?>
+<legend><?php echo $this->__("Stop dunning run") ?></legend>
+<div id="billsafe_pause_form" class="order-billsafe-pause-form">
+    <p><?php echo $this->__("A receivable can be deferred in a situation where a buyer has initiated the return of an item but it hasn't yet been received by the merchant. The initiation of the dunning run in this case will be paused or delayed.") ?></p>
+    <span class="field-row">
+        <label class="normal" for="billsafe_pause"><?php echo $this->__('Days') ?></label><br/>
+        <select id="billsafe_pause" class="select" name="pause" size="1">
+            <?php foreach ($this->getPauseDays() as $_key => $_value): ?>
+                <option value="<?php echo $_value ?>"><?php echo $_value ?></option>
+            <?php endforeach; ?>
+        </select>
+    </span>
+    <div class="f-right">
+        <?php echo $this->getChildHtml('submit_button') ?>
+    </div>
+    <div class="clear"></div>
+</div>
